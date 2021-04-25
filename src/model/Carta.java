@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 public class Carta {
     private int id;
@@ -45,5 +46,18 @@ public class Carta {
 
     public void setImagemTras(BufferedImage imagemTras) {
         this.imagemTras = imagemTras;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Carta carta = (Carta) o;
+        return id == carta.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

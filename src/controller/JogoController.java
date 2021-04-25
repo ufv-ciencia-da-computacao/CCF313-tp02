@@ -1,16 +1,19 @@
-package model;
+package controller;
 
-public class Jogo {
+import computador.Computador;
+import model.Jogador;
+import model.Tabuleiro;
+
+public class JogoController {
     private Tabuleiro tabuleiro;
     private Jogador jogador1;
     private Jogador jogador2;
     private int jogadorDaVez;
 
-    public Jogo(Tabuleiro tabuleiro, Jogador jogador1, Jogador jogador2, int jogadorDaVez) {
-        this.tabuleiro = tabuleiro;
-        this.jogador1 = jogador1;
-        this.jogador2 = jogador2;
-        this.jogadorDaVez = jogadorDaVez;
+    public JogoController(int linhas, int colunas, String nomeJogador) {
+        this.tabuleiro = new Tabuleiro(linhas, colunas);
+        this.jogador1 = new Jogador(nomeJogador);
+        this.jogadorDaVez = 0;
     }
 
     public Tabuleiro getTabuleiro() {

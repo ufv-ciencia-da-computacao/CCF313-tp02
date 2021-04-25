@@ -5,10 +5,10 @@ public class Jogador {
     private String nome;
     private int pontuacao;
 
-    public Jogador(int id, String nome, int pontuacao) {
-        this.id = id;
+    public Jogador(String nome) {
         this.nome = nome;
-        this.pontuacao = pontuacao;
+        this.id = 0;
+        this.pontuacao = 0;
     }
 
     public int getId() {

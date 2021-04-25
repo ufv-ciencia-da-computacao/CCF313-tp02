@@ -3,8 +3,8 @@ package model;
 public class Tabuleiro {
     private Carta[][] matriz;
 
-    public Tabuleiro(Carta[][] matriz) {
-        this.matriz = matriz;
+    public Tabuleiro(int linhas, int colunas) {
+        this.matriz = new Carta[linhas][colunas];
     }
 
     public Carta[][] getMatriz() {

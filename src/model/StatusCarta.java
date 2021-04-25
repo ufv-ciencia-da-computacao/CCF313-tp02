@@ -1,5 +1,5 @@
 package model;
 
 public enum StatusCarta {
-    ABERTA, FECHADA;
+    ABERTA, FECHADA, ENCONTRADA;
 }
