@@ -1,28 +1,49 @@
 package service;
 
 import model.Carta;
+import model.Jogador;
 import model.StatusCarta;
-import persistence.CartaDAO;
-import persistence.TabuleiroDAO;
+import model.Tabuleiro;
+
+import utilidades.Posicao;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class JogoApplication {
-    CartaDAO cartaDAO;
-    TabuleiroDAO tabuleiroDAO;
+    List<Carta> cartas;
+    Tabuleiro tabuleiro;
 
-    public JogoApplication(CartaDAO cartaDAO, TabuleiroDAO tabuleiroDAO) {
-        this.cartaDAO = cartaDAO;
-        this.tabuleiroDAO = tabuleiroDAO;
+    public JogoApplication(Jogador jogador1, Jogador jogador2) {
+        this.cartas = new ArrayList<Carta>();
+        this.tabuleiro = new Tabuleiro(8,8);
+        jogador1 = jogador1;
+        jogador2 = jogador2;
     }
 
-    void flipCarta(int id, StatusCarta statusCarta) {
-        Carta carta = tabuleiroDAO.getCartaFromTabuleiro(id);
+    public void initTabuleiro() {
+        List<Carta> shuffledListCartas = new ArrayList<Carta>(cartas);
+        Collections.shuffle(shuffledListCartas);
 
-        if (carta != null) cartaDAO.flipCarta(carta, statusCarta);
+        int maxLinhas = tabuleiro.getLinhaMax();
+        int maxColunas = tabuleiro.getColunaMax();
+        for (int i = 0; i < maxLinhas; i++) {
+            for (int j = 0; j < maxColunas; j++) {
+                tabuleiro.setCartaMatriz(shuffledListCartas.get(i+j), i, j);
+            }
+        }
     }
 
-    boolean verifyIf2CartasIsEquals(int id1, int id2) {
-        Carta carta1 = tabuleiroDAO.getCartaFromTabuleiro(id1);
-        Carta carta2 = tabuleiroDAO.getCartaFromTabuleiro(id2);
+    void flipCarta(Posicao p,  StatusCarta statusCarta) {
+        Carta carta = tabuleiro.getCartaMatriz(p.getI(), p.getJ());
+
+        if (carta != null) carta.setStatus(statusCarta);
+    }
+
+    boolean verifyIf2CartasIsEquals(Posicao p1, Posicao p2) {
+        Carta carta1 = tabuleiro.getCartaMatriz(p1.getI(), p2.getJ());
+        Carta carta2 = tabuleiro.getCartaMatriz(p2.getI(), p2.getJ());
 
         if (carta1 != null && carta2 != null) return carta1.equals(carta2);
         return false;
