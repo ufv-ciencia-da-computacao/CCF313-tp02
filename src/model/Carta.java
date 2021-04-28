@@ -1,5 +1,6 @@
 package model;
 
+import util.StatusCarta;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 

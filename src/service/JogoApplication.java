@@ -1,7 +1,7 @@
 package service;
 
 import model.Carta;
-import model.StatusCarta;
+import util.StatusCarta;
 import persistence.CartaDAO;
 import persistence.TabuleiroDAO;
 

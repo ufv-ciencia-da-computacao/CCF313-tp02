@@ -1,6 +1,6 @@
 package model;
 
-import utilidades.Posicao;
+import util.Posicao;
 
 public class Tabuleiro {
     private Carta[][] matriz;

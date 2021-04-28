@@ -2,7 +2,7 @@ package computador;
 
 import model.Carta;
 import model.Jogador;
-import utilidades.Posicao;
+import util.Posicao;
 
 import java.util.ArrayList;
 import java.util.Collection;
