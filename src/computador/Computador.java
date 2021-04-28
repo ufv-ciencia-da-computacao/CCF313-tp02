@@ -14,8 +14,8 @@ public class Computador extends Jogador {
     private List<CartaConhecida> cartasConhecidas;
     private Posicao ultimaEscolha;
 
-    public Computador(String name) {
-        super(name);
+    public Computador() {
+        super("Computador");
         cartasConhecidas = new ArrayList<>();
         ultimaEscolha = null;
     }
