@@ -1,6 +1,5 @@
 package service;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import model.Carta;
@@ -15,43 +14,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
-import view.Computador;
-import view.TelaJogo;
 
-public class JogoApplication {
+public class JogoApplication implements IJogoController {
     private List<Carta> cartas;
-    private final Tabuleiro tabuleiro;
-    private final Jogador jogador1;
-    private final Jogador jogador2;
+    private Tabuleiro tabuleiro;
     private int jogadorDaVez;
-    private final TelaJogo jogo;
+    private int cartasAbertas;
     private int jogada;
+    private Posicao p1;
+    private Posicao p2;
     
     public JogoApplication() throws Exception {
-        BufferedImage fundo = ImageIO.read(new File("./src/img/babu-de-pijama.jpeg"));
+        BufferedImage fundo = ImageIO.read(new File("./src/img/fundo.jpg"));
+        BufferedImage babu = ImageIO.read(new File("./src/img/babu-de-pijama.jpeg"));
         BufferedImage dummy = ImageIO.read(new File("./src/img/dummy.jpeg"));
+        BufferedImage gil = ImageIO.read(new File("./src/img/gil-do-vigor.png"));
+        BufferedImage monstro = ImageIO.read(new File("./src/img/monstro-caio-gil-arthur.jpg"));
+        BufferedImage prior = ImageIO.read(new File("./src/img/priorbbb.jpg"));
+
+        cartasAbertas = 0;
         
         this.cartas = new ArrayList<Carta>(Arrays.asList(
                 new Carta(1, dummy, fundo), 
-                new Carta(2, dummy, fundo), 
-                new Carta(3, dummy, fundo), 
-                new Carta(4, dummy, fundo),
-                new Carta(5, dummy, fundo),
-                new Carta(6, dummy, fundo)
+                new Carta(2, gil, fundo),
+                new Carta(3, monstro, fundo),
+                new Carta(4, prior, fundo),
+                new Carta(5, babu, fundo)
+//                new Carta(6, dummy, fundo)
         ));
         
         this.tabuleiro = new Tabuleiro(2, 4);
-        this.jogador1 = new Jogador("Jogador 1");
-        this.jogador2 = new Computador();
-        
-        this.jogo = new TelaJogo(this.jogador1);
-        this.jogo.setVisible(true);
-        
         initTabuleiro();
-        
-        
-        notificarJogada();
+//        notificarJogada();
     }
     
     private void notificarJogada() {
@@ -64,26 +60,26 @@ public class JogoApplication {
     }
     
     public void aceitarJogada(Jogador jogador, int i, int j) {
-        if(jogadorDaVez == 1 && jogador.equals(jogador1)) {
-            // do somethig
-        }
-        
-        if(jogadorDaVez == 2 && jogador.equals(jogador2)) {
-            // do something else
-        }
-        
-        // else ignore because some stupid player made a invalid move
+//        if(jogadorDaVez == 1 && jogador.equals(jogador1)) {
+//            // do somethig
+//        }
+//
+//        if(jogadorDaVez == 2 && jogador.equals(jogador2)) {
+//            // do something else
+//        }
+//
+//        // else ignore because some stupid player made a invalid move
     }
 
-    public void initTabuleiro() {
+    public Tabuleiro initTabuleiro() {
         Collections.shuffle(cartas);
-        
+
         List<Carta> duplicado = new ArrayList<>();
         for(int i=0; i<4; i++) {
-            duplicado.add(cartas.get(i));
-            duplicado.add(cartas.get(i));
+            duplicado.add((Carta) cartas.get(i).clone());
+            duplicado.add((Carta) cartas.get(i).clone());
         }
-        Collections.shuffle(cartas);
+        Collections.shuffle(duplicado);
         
         int maxLinhas = tabuleiro.getLinhaMax();
         int maxColunas = tabuleiro.getColunaMax();
@@ -93,21 +89,50 @@ public class JogoApplication {
                 tabuleiro.setCartaMatriz(duplicado.get(index++), i, j);
             }
         }
-        this.jogo.notificarTabuleiro(tabuleiro);
-        
+        return tabuleiro;
     }
 
-    void flipCarta(Posicao p,  StatusCarta statusCarta) {
+    public Tabuleiro getTabuleiro() {
+        return tabuleiro;
+    }
+
+    private void flipCarta(Posicao p,  StatusCarta statusCarta) {
         Carta carta = tabuleiro.getCartaMatriz(p.getI(), p.getJ());
 
         if (carta != null) carta.setStatus(statusCarta);
+
+        tabuleiro.setCartaMatriz(carta, p.getI(), p.getI());
     }
 
-    boolean verifyIf2CartasIsEquals(Posicao p1, Posicao p2) {
+    private boolean verifyIf2CartasIsEquals(Posicao p1, Posicao p2) {
         Carta carta1 = tabuleiro.getCartaMatriz(p1.getI(), p2.getJ());
         Carta carta2 = tabuleiro.getCartaMatriz(p2.getI(), p2.getJ());
 
         if (carta1 != null && carta2 != null) return carta1.equals(carta2);
         return false;
+    }
+
+    public void notificarCarta(int i, int j) throws InterruptedException {
+        Posicao p = new Posicao(i, j);
+        Carta c = tabuleiro.getCartaMatriz(p.getI(), p.getJ());
+
+        if (c.getStatus() == StatusCarta.FECHADA)
+            flipCarta(p, StatusCarta.ABERTA);
+
+        //notifica jogada
+
+        if (p1 == null) p1 = p;
+        else if (p2 == null) p2 = p;
+
+//        if(p1 != null && p2 != null) {
+//            if(verifyIf2CartasIsEquals(p1, p2)) {
+////                notificaPontoJogador();
+//            } else {
+//                flipCarta(p1, StatusCarta.FECHADA);
+//                flipCarta(p2, StatusCarta.FECHADA);
+//            }
+//            p1=null;
+//            p2=null;
+//        }
     }
 }

@@ -4,7 +4,7 @@ import util.StatusCarta;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-public class Carta {
+public class Carta implements Cloneable {
     private int id;
     private StatusCarta status;
     private BufferedImage imagemFrente;
@@ -60,5 +60,14 @@ public class Carta {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return (Carta) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return this;
+        }
     }
 }

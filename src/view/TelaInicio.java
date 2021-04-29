@@ -6,6 +6,7 @@
 package view;
 
 import model.Jogador;
+import service.IJogoController;
 import service.JogoApplication;
 import view.interfaces.IJogadorImpl;
 
@@ -18,8 +19,12 @@ public class TelaInicio extends javax.swing.JFrame implements IJogadorImpl {
     /**
      * Creates new form TelaInicio
      */
+    Jogador jogador1;
+    Jogador jogador2;
     public TelaInicio() {
         initComponents();
+        this.jogador1 = new Jogador("Jogador 1");
+        this.jogador2 = new Computador();
     }
 
     /**
@@ -66,7 +71,9 @@ public class TelaInicio extends javax.swing.JFrame implements IJogadorImpl {
     private void jogarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jogarActionPerformed
         // inicializar a main do jogo
         try {
-            new JogoApplication();
+            controller = new JogoApplication();
+            this.jogo = new TelaJogo(this.jogador1, controller);
+            this.jogo.setVisible(true);
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }
@@ -110,5 +117,7 @@ public class TelaInicio extends javax.swing.JFrame implements IJogadorImpl {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jogar;
+    private TelaJogo jogo;
+    private IJogoController controller;
     // End of variables declaration//GEN-END:variables
 }

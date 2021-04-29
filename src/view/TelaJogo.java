@@ -7,11 +7,14 @@ package view;
 
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import model.Carta;
 import model.Jogador;
 import model.Tabuleiro;
+import service.IJogoController;
 import util.StatusCarta;
 
 /**
@@ -24,14 +27,16 @@ public class TelaJogo extends javax.swing.JFrame {
     private final int M = 4;
     JButton tabuleiro[][] = new JButton[N][M];
     private Jogador jogador;
+    private IJogoController jogoController;
     
     /**
      * Creates new form TelaJogo
      */
-    public TelaJogo(Jogador jogador) {
+    public TelaJogo(Jogador jogador, IJogoController controller) {
         initComponents();
         
         this.jogador = jogador;
+        this.jogoController = controller;
         
         tabuleiro[0][0] = btn_0_0;
         tabuleiro[0][1] = btn_0_1;
@@ -41,7 +46,9 @@ public class TelaJogo extends javax.swing.JFrame {
         tabuleiro[1][1] = btn_1_1;
         tabuleiro[1][2] = btn_1_2;
         tabuleiro[1][3] = btn_1_3;
-        
+
+        notificarTabuleiro(jogoController.getTabuleiro());
+        setListenerBotao();
         // ...
         
         
@@ -58,6 +65,24 @@ public class TelaJogo extends javax.swing.JFrame {
             this.tabuleiro[i][j].setContentAreaFilled(false);
             this.tabuleiro[i][j].setMargin(new Insets(0, 0, 0, 0));
             this.tabuleiro[i][j].setText("");
+        }
+    }
+
+    private void setListenerBotao() {
+        for(int i=0; i<N; i++) for(int j=0; j<M; j++) {
+            int finalJ = j;
+            int finalI = i;
+            tabuleiro[i][j].addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    try {
+                        jogoController.notificarCarta(finalI, finalJ);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    notificarTabuleiro(jogoController.getTabuleiro());
+                }
+            });
         }
     }
 
