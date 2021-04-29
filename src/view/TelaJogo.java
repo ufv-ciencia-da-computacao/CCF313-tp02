@@ -5,17 +5,60 @@
  */
 package view;
 
+import java.awt.Image;
+import java.awt.Insets;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import model.Carta;
+import model.Jogador;
+import model.Tabuleiro;
+import util.StatusCarta;
+
 /**
  *
  * @author dener
  */
 public class TelaJogo extends javax.swing.JFrame {
-
+    
+    private final int N = 2;
+    private final int M = 4;
+    JButton tabuleiro[][] = new JButton[N][M];
+    private Jogador jogador;
+    
     /**
      * Creates new form TelaJogo
      */
-    public TelaJogo() {
+    public TelaJogo(Jogador jogador) {
         initComponents();
+        
+        this.jogador = jogador;
+        
+        tabuleiro[0][0] = btn_0_0;
+        tabuleiro[0][1] = btn_0_1;
+        tabuleiro[0][2] = btn_0_2;
+        tabuleiro[0][3] = btn_0_3;
+        tabuleiro[1][0] = btn_1_0;
+        tabuleiro[1][1] = btn_1_1;
+        tabuleiro[1][2] = btn_1_2;
+        tabuleiro[1][3] = btn_1_3;
+        
+        // ...
+        
+        
+    }
+    
+    public void notificarTabuleiro(Tabuleiro tabuleiro) {
+        for(int i=0; i<N; i++) for(int j=0; j<M; j++) {
+            Carta c = tabuleiro.getCartaMatriz(i, j);
+            if(c.getStatus() == StatusCarta.ABERTA) {
+                this.tabuleiro[i][j].setIcon(new ImageIcon(c.getImagemFrente().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+            } else {
+                this.tabuleiro[i][j].setIcon(new ImageIcon(c.getImagemTras().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+            }
+            this.tabuleiro[i][j].setContentAreaFilled(false);
+            this.tabuleiro[i][j].setMargin(new Insets(0, 0, 0, 0));
+            this.tabuleiro[i][j].setText("");
+        }
     }
 
     /**
@@ -39,7 +82,6 @@ public class TelaJogo extends javax.swing.JFrame {
         btn_1_2 = new javax.swing.JButton();
         btn_1_3 = new javax.swing.JButton();
         sair = new javax.swing.JButton();
-        jogar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         pontosJogador1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -52,7 +94,6 @@ public class TelaJogo extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(700, 400));
         setMinimumSize(new java.awt.Dimension(700, 400));
-        setPreferredSize(new java.awt.Dimension(700, 400));
         setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
@@ -86,13 +127,6 @@ public class TelaJogo extends javax.swing.JFrame {
         jPanel3.add(btn_1_3);
 
         sair.setText("Sair");
-
-        jogar.setText("Jogar");
-        jogar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jogarActionPerformed(evt);
-            }
-        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel1.setMaximumSize(new java.awt.Dimension(54, 33));
@@ -144,9 +178,7 @@ public class TelaJogo extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(309, 309, 309)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jogar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(sair, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(sair, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(63, 63, 63)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -173,9 +205,7 @@ public class TelaJogo extends javax.swing.JFrame {
                     .addComponent(nomeJogador2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(20, 20, 20)
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jogar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(40, 40, 40)
                 .addComponent(sair)
                 .addContainerGap())
         );
@@ -183,44 +213,6 @@ public class TelaJogo extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jogarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jogarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jogarActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TelaJogo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TelaJogo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TelaJogo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TelaJogo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TelaJogo().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_0_0;
@@ -236,7 +228,6 @@ public class TelaJogo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JButton jogar;
     private javax.swing.JLabel nomeJogador1;
     private javax.swing.JLabel nomeJogador2;
     private javax.swing.JLabel pontosJogador1;

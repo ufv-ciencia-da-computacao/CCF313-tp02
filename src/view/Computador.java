@@ -1,4 +1,4 @@
-package computador;
+package view;
 
 import model.Carta;
 import model.Jogador;
@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import view.interfaces.IJogadorImpl;
 
-public class Computador extends Jogador {
+public class Computador extends Jogador implements IJogadorImpl {
 
     private List<CartaConhecida> cartasConhecidas;
     private Posicao ultimaEscolha;

@@ -10,9 +10,9 @@ public class Carta {
     private BufferedImage imagemFrente;
     private BufferedImage imagemTras;
 
-    public Carta(int id, StatusCarta status, BufferedImage imagemFrente, BufferedImage imagemTras) {
+    public Carta(int id, BufferedImage imagemFrente, BufferedImage imagemTras) {
         this.id = id;
-        this.status = status;
+        this.status = StatusCarta.FECHADA;
         this.imagemFrente = imagemFrente;
         this.imagemTras = imagemTras;
     }

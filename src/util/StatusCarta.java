@@ -1,5 +1,5 @@
 package util;
 
 public enum StatusCarta {
-    ABERTA, FECHADA, ENCONTRADA;
+    ABERTA, FECHADA;
 }
