@@ -9,12 +9,16 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import java.sql.Time;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+import javax.swing.*;
+
 import model.Carta;
 import model.Jogador;
 import model.Tabuleiro;
 import service.IJogoController;
+import util.Posicao;
 import util.StatusCarta;
 
 /**
@@ -27,7 +31,9 @@ public class TelaJogo extends javax.swing.JFrame {
     private final int M = 4;
     JButton tabuleiro[][] = new JButton[N][M];
     private Jogador jogador;
+    private Computador com;
     private IJogoController jogoController;
+    private int jogadorVez;
     
     /**
      * Creates new form TelaJogo
@@ -36,8 +42,20 @@ public class TelaJogo extends javax.swing.JFrame {
         initComponents();
         
         this.jogador = jogador;
+        this.com = new Computador();
         this.jogoController = controller;
-        
+
+        this.jogoController.addObservers(com);
+
+        setListenerBotao();
+
+        sair.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                dispose();
+            }
+        });
+
         tabuleiro[0][0] = btn_0_0;
         tabuleiro[0][1] = btn_0_1;
         tabuleiro[0][2] = btn_0_2;
@@ -49,9 +67,34 @@ public class TelaJogo extends javax.swing.JFrame {
 
         notificarTabuleiro(jogoController.getTabuleiro());
         setListenerBotao();
-        // ...
-        
-        
+
+        sair.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                dispose();
+            }
+        });
+
+        jogadorVez = 1;
+        nomeJogador1.setText(jogador.getNome());
+        nomeJogador2.setText(com.getNome());
+        pontosJogador1.setText(String.valueOf(jogador.getPontuacao()));
+        pontosJogador2.setText(String.valueOf(com.getPontuacao()));
+    }
+
+    void inicializarJogo() {
+
+        this.jogoController.addObservers(com);
+
+        notificarTabuleiro(jogoController.getTabuleiro());
+
+        jogadorVez = 1;
+        nomeJogador1.setText(jogador.getNome());
+        nomeJogador2.setText(com.getNome());
+        jogador.setPontuacao(0);
+        com.setPontuacao(0);
+        pontosJogador1.setText(String.valueOf(jogador.getPontuacao()));
+        pontosJogador2.setText(String.valueOf(com.getPontuacao()));
     }
     
     public void notificarTabuleiro(Tabuleiro tabuleiro) {
@@ -75,12 +118,47 @@ public class TelaJogo extends javax.swing.JFrame {
             tabuleiro[i][j].addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
-                    try {
+                    if (jogoController.getJogadorDaVez() == 1) {
                         jogoController.notificarCarta(finalI, finalJ);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        notificarTabuleiro(jogoController.getTabuleiro());
+
+                        if (jogoController.getCartasAbertas() == 2) {
+                            if (jogoController.verifyIf2CartasIsEquals(jogador)) {
+                                pontosJogador1.setText(String.valueOf(jogador.getPontuacao()));
+                            } else {
+                                try {
+                                    Thread.sleep(450);
+                                } catch(Exception ignored) { }
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        notificarTabuleiro(jogoController.getTabuleiro());
+                                        if (jogoController.getJogadorDaVez() == 2)
+                                            for (Posicao p : com.joga(jogoController.getPosicoesCartasFechadas())) {
+                                                jogoController.notificarCarta(p.getI(), p.getJ());
+                                                notificarTabuleiro(jogoController.getTabuleiro());
+                                            }
+                                        if (jogoController.verifyIf2CartasIsEquals(com)) {
+                                            pontosJogador2.setText(String.valueOf(com.getPontuacao()));
+                                            jogoController.setJogadorDaVez(1);
+                                        } else {
+                                            try {
+                                                Thread.sleep(2000);
+                                            } catch (Exception ignored) {
+                                            }
+
+                                            SwingUtilities.invokeLater(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notificarTabuleiro(jogoController.getTabuleiro());
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
                     }
-                    notificarTabuleiro(jogoController.getTabuleiro());
                 }
             });
         }

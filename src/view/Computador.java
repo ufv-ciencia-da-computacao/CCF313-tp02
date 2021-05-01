@@ -4,13 +4,14 @@ import model.Carta;
 import model.Jogador;
 import util.Posicao;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import view.interfaces.IJogadorImpl;
+import view.interfaces.Observer;
 
-public class Computador extends Jogador implements IJogadorImpl {
+public class Computador extends Jogador implements Observer {
 
     private List<CartaConhecida> cartasConhecidas;
     private Posicao ultimaEscolha;
@@ -21,37 +22,48 @@ public class Computador extends Jogador implements IJogadorImpl {
         ultimaEscolha = null;
     }
 
-    void notificarCartaAberta(Carta carta, Posicao posicao) {
+    public void notificarCartaAberta(Carta carta, Posicao posicao) {
         for(CartaConhecida c : this.cartasConhecidas) {
             if(c.isAt(posicao)) return;
         }
         cartasConhecidas.add(new CartaConhecida(carta, posicao));
     }
 
-    void notificarCartaEncontrada(Posicao posicao) {
+    public void notificarCartaEncontrada(Posicao posicao1, Posicao posicao2) {
         for (int k = 0; k < this.cartasConhecidas.size(); k++) {
             CartaConhecida c = this.cartasConhecidas.get(k);
-            if (c.isAt(posicao)) {
+            if (c.isAt(posicao1) ||  c.isAt(posicao2)) {
                 c = null;
                 this.cartasConhecidas.remove(k);
-                break;
             }
         }
     }
 
-    Posicao escolherPrimeiraPosicaoParaJogar(List<Posicao> disponiveis) {
+    @Override
+    public List<Posicao> joga(List<Posicao> disponiveis) {
+        Posicao p1 = escolherPrimeiraPosicaoParaJogar(disponiveis);
+        disponiveis.remove(p1);
+//        System.out.println(p1.getI() + " " + p1.getI());
+        Posicao p2 = escolherSegundaPosicaoParaJogar(disponiveis);
+//        System.out.println(p2.getI() + " " + p2.getI());
+        return new ArrayList<>(Arrays.asList(p1, p2));
+    }
+
+    public Posicao escolherPrimeiraPosicaoParaJogar(List<Posicao> disponiveis) {
         Carta algumaCarta = null;
         for(Posicao p : disponiveis) {
             boolean alguem = false;
             for(CartaConhecida c : this.cartasConhecidas) {
                 if(c.isAt(p)) {
+                    algumaCarta = c.getCarta();
                     alguem = true;
                     break;
                 }
             }
+
             if(!alguem) continue;
             for(CartaConhecida c : this.cartasConhecidas) {
-                if(c.getCarta().equals(c) && !c.isAt(p)) {
+                if(c.getCarta().equals(algumaCarta) && !c.isAt(p)) {
                     ultimaEscolha = p;
                     return p;
                 }
@@ -59,6 +71,7 @@ public class Computador extends Jogador implements IJogadorImpl {
         }
 
         List<Posicao> escolha = new ArrayList<>();
+        System.out.println(disponiveis.size());
         for(Posicao p : disponiveis) {
             boolean conheco = false;
             for(CartaConhecida c : cartasConhecidas) {
@@ -73,21 +86,26 @@ public class Computador extends Jogador implements IJogadorImpl {
         }
 
         Collections.shuffle(escolha);
-
-        return escolha.get(0);
+        ultimaEscolha = escolha.get(0);
+        return ultimaEscolha;
     }
 
-    Posicao escolherSegundaPosicaoParaJogar(List<Posicao> disponiveis) {
+    public Posicao escolherSegundaPosicaoParaJogar(List<Posicao> disponiveis) {
         Carta escolhida = null;
         for(CartaConhecida c : cartasConhecidas) {
             if(c.isAt(ultimaEscolha)) {
                 escolhida = c.getCarta();
+                break;
             }
         }
 
-        for(CartaConhecida c : cartasConhecidas) {
-            if(escolhida.equals(c.getCarta()) && !c.isAt(ultimaEscolha)) {
-                return c.getPosicao();
+        if (escolhida != null) {
+            for (CartaConhecida c : cartasConhecidas) {
+                if (!c.isAt(ultimaEscolha)) {
+                    if (escolhida.equals(c.getCarta())) {
+                        return c.getPosicao();
+                    }
+                }
             }
         }
 
@@ -107,7 +125,7 @@ public class Computador extends Jogador implements IJogadorImpl {
         }
 
         boolean isAt(Posicao posicao) {
-            return this.posicao.equals(posicao);
+            return (this.posicao.getI() == posicao.getI() && this.posicao.getJ() == posicao.getJ());
         }
 
         Carta getCarta() {

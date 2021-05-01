@@ -8,13 +8,13 @@ package view;
 import model.Jogador;
 import service.IJogoController;
 import service.JogoApplication;
-import view.interfaces.IJogadorImpl;
+import view.interfaces.Observer;
 
 /**
  *
  * @author dener
  */
-public class TelaInicio extends javax.swing.JFrame implements IJogadorImpl {
+public class TelaInicio extends javax.swing.JFrame {
     
     /**
      * Creates new form TelaInicio

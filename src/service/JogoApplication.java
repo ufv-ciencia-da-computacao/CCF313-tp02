@@ -9,6 +9,8 @@ import util.StatusCarta;
 import model.Tabuleiro;
 
 import util.Posicao;
+import view.Computador;
+import view.interfaces.Observer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,10 +24,10 @@ public class JogoApplication implements IJogoController {
     private Tabuleiro tabuleiro;
     private int jogadorDaVez;
     private int cartasAbertas;
-    private int jogada;
     private Posicao p1;
     private Posicao p2;
-    
+    public List<Observer> observers;
+
     public JogoApplication() throws Exception {
         BufferedImage fundo = ImageIO.read(new File("./src/img/fundo.jpg"));
         BufferedImage babu = ImageIO.read(new File("./src/img/babu-de-pijama.jpeg"));
@@ -42,36 +44,41 @@ public class JogoApplication implements IJogoController {
                 new Carta(3, monstro, fundo),
                 new Carta(4, prior, fundo),
                 new Carta(5, babu, fundo)
-//                new Carta(6, dummy, fundo)
         ));
         
         this.tabuleiro = new Tabuleiro(2, 4);
         initTabuleiro();
-//        notificarJogada();
-    }
-    
-    private void notificarJogada() {
-        if(jogadorDaVez == 1) {
-            // notificar
-        } else {
-            // notificar
-        }
-        // jogadorDaVez = 2 - jogadorDaVez;
-    }
-    
-    public void aceitarJogada(Jogador jogador, int i, int j) {
-//        if(jogadorDaVez == 1 && jogador.equals(jogador1)) {
-//            // do somethig
-//        }
-//
-//        if(jogadorDaVez == 2 && jogador.equals(jogador2)) {
-//            // do something else
-//        }
-//
-//        // else ignore because some stupid player made a invalid move
+        jogadorDaVez = 1;
+
+        observers = new ArrayList<>();
     }
 
-    public Tabuleiro initTabuleiro() {
+    @Override
+    public void addObservers(Observer c) {
+        observers.add(c);
+    }
+
+    @Override
+    public void removeObservers(Observer c) {
+        observers.remove(c);
+    }
+
+    @Override
+    public int getJogadorDaVez() {
+        return this.jogadorDaVez;
+    }
+
+    @Override
+    public void setJogadorDaVez(int i) {
+        this.jogadorDaVez = 2-jogadorDaVez+1;
+    }
+
+    @Override
+    public int getCartasAbertas() {
+        return cartasAbertas;
+    }
+
+    public void initTabuleiro() {
         Collections.shuffle(cartas);
 
         List<Carta> duplicado = new ArrayList<>();
@@ -89,7 +96,6 @@ public class JogoApplication implements IJogoController {
                 tabuleiro.setCartaMatriz(duplicado.get(index++), i, j);
             }
         }
-        return tabuleiro;
     }
 
     public Tabuleiro getTabuleiro() {
@@ -101,38 +107,68 @@ public class JogoApplication implements IJogoController {
 
         if (carta != null) carta.setStatus(statusCarta);
 
-        tabuleiro.setCartaMatriz(carta, p.getI(), p.getI());
+        tabuleiro.setCartaMatriz(carta, p.getI(), p.getJ());
     }
 
-    private boolean verifyIf2CartasIsEquals(Posicao p1, Posicao p2) {
-        Carta carta1 = tabuleiro.getCartaMatriz(p1.getI(), p2.getJ());
-        Carta carta2 = tabuleiro.getCartaMatriz(p2.getI(), p2.getJ());
-
-        if (carta1 != null && carta2 != null) return carta1.equals(carta2);
-        return false;
+    public boolean verifyIf2CartasIsEquals(Jogador jogador) {
+        boolean bool = true;
+        if (p1 != null && p2 != null){
+            Carta carta1 = tabuleiro.getCartaMatriz(p1.getI(), p1.getJ());
+            Carta carta2 = tabuleiro.getCartaMatriz(p2.getI(), p2.getJ());
+            if(carta1.equals(carta2)) {
+                jogador.setPontuacao(jogador.getPontuacao()+1);
+                notificaObserversCartaEncontrada(p1, p2);
+            } else {
+                bool = false;
+                flipCarta(p1, StatusCarta.FECHADA);
+                flipCarta(p2, StatusCarta.FECHADA);
+                jogadorDaVez = 2-jogadorDaVez+1;
+            }
+            p1=null;
+            p2=null;
+            cartasAbertas=0;
+        }
+        return bool;
     }
 
-    public void notificarCarta(int i, int j) throws InterruptedException {
+    @Override
+    public void notificarCarta(int i, int j) {
         Posicao p = new Posicao(i, j);
         Carta c = tabuleiro.getCartaMatriz(p.getI(), p.getJ());
-
-        if (c.getStatus() == StatusCarta.FECHADA)
+        if (c.getStatus() == StatusCarta.FECHADA) {
             flipCarta(p, StatusCarta.ABERTA);
+            notificaObserversJogada(c, p);
+            if (p1 == null) {
+                p1 = new Posicao(p.getI(), p.getJ());
+            } else if (p2 == null) {
+                p2 = new Posicao(p.getI(), p.getJ());
+            }
+            cartasAbertas += 1;
+        }
+    }
 
-        //notifica jogada
+    private void notificaObserversJogada(Carta c, Posicao p) {
+        for (Observer o: observers) {
+            o.notificarCartaAberta(c, p);
+        }
+    }
 
-        if (p1 == null) p1 = p;
-        else if (p2 == null) p2 = p;
+    private void notificaObserversCartaEncontrada(Posicao p1, Posicao p2) {
+        for (Observer o: observers) {
+            o.notificarCartaEncontrada(p1, p2);
+        }
+    }
 
-//        if(p1 != null && p2 != null) {
-//            if(verifyIf2CartasIsEquals(p1, p2)) {
-////                notificaPontoJogador();
-//            } else {
-//                flipCarta(p1, StatusCarta.FECHADA);
-//                flipCarta(p2, StatusCarta.FECHADA);
-//            }
-//            p1=null;
-//            p2=null;
-//        }
+    @Override
+    public List<Posicao> getPosicoesCartasFechadas() {
+        List<Posicao> posicoes = new ArrayList<>();
+        for (int i = 0; i < this.tabuleiro.getLinhaMax(); i++) {
+            for (int j = 0; j < this.tabuleiro.getColunaMax(); j++) {
+                if (this.tabuleiro.getCartaMatriz(i, j).getStatus() == StatusCarta.FECHADA) {
+                    posicoes.add(new Posicao(i, j));
+                }
+            }
+        }
+        return posicoes;
     }
 }
